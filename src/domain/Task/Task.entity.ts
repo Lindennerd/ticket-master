@@ -1,4 +1,4 @@
-import { Comment } from "@/Comment/Comment.entity";
+import { Comment } from "@/domain/Comment/Comment.entity";
 import { Entity, Field, Fields } from "remult";
 
 @Entity("task", { allowApiCrud: true })

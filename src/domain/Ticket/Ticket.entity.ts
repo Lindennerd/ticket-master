@@ -1,5 +1,5 @@
-import { Comment } from "@/Comment/Comment.entity";
-import { Task } from "@/Task/Task.entity";
+import { Comment } from "@/domain/Comment/Comment.entity";
+import { Task } from "@/domain/Task/Task.entity";
 import { Entity, Fields } from "remult";
 
 @Entity("ticket", { allowApiCrud: true })
@@ -14,7 +14,7 @@ export class Ticket {
   description = "";
 
   @Fields.date()
-  createdAt = Date.now();
+  createdAt = new Date();
 
   @Fields.date()
   startedAt?: Date;
@@ -46,4 +46,13 @@ export enum TicketStatus {
   STARTED,
   PAUSED,
   DONE,
+}
+
+export type TicketCreateInput = {
+  title: string;
+  description: string;
+};
+
+export interface TicketUpdateInput extends TicketCreateInput {
+  id: string;
 }
