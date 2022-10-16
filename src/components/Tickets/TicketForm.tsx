@@ -46,7 +46,7 @@ export function TicketForm({
       />
 
       <Group position="right" mt="md">
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" loading={loading}>
           Submit
         </Button>
       </Group>
