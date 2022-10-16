@@ -7,6 +7,10 @@ export function useTicket() {
       return remult.repo(Ticket).find();
     },
 
+    fetchTicket: async (id: string) => {
+      return remult.repo(Ticket).findId(id);
+    },
+
     createTicket: async (ticket: TicketCreateInput) => {
       return await remult.repo(Ticket).insert(ticket);
     },
