@@ -1,24 +1,21 @@
 import { Ticket, TicketStatus } from "@/domain/Ticket/Ticket.entity";
 import { useTicket } from "@/domain/Ticket/useTicket";
-import {
-  Paper,
-  Title,
-  Text,
-  createStyles,
-  Button,
-  Badge,
-  Loader,
-} from "@mantine/core";
+import { Paper, Title, Text, createStyles, Badge } from "@mantine/core";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { IconPlus } from "@tabler/icons";
 import { LoadingPage } from "@/components/UI/LoadingPage";
+import { TaskAdd } from "@/components/Task/TaskAdd";
+import { useAtom } from "jotai";
+import { atom } from "jotai";
+import { TaskList } from "@/components/Task/TaskList";
+
+export const ticketAtom = atom<Ticket | null>(null);
 
 export default function TicketDetailPage() {
   const { query } = useRouter();
   const { id } = query;
   const { fetchTicket } = useTicket();
-  const [ticket, setTicket] = useState<Ticket>();
+  const [ticket, setTicket] = useAtom(ticketAtom);
   const [loading, setLoading] = useState(false);
 
   const { classes } = useStyles();
@@ -31,33 +28,31 @@ export default function TicketDetailPage() {
     });
   }, [id]);
 
-  if (loading) return <LoadingPage />;
+  if (loading && !ticket) return <LoadingPage />;
   if (!loading && !ticket)
     return <Text color={"red"}>Invalid Ticket selected</Text>;
 
-  return (
-    <div className={classes.pageLayout}>
-      <Paper shadow="sm" p="sm">
-        <Text>{`Openned by user at ${ticket?.createdAt.toLocaleDateString()} ${ticket?.createdAt.toLocaleTimeString()}`}</Text>
-        <div className={classes.ticketHeader}>
-          <Title order={1}>{ticket?.title}</Title>
-          <div>
-            <Badge>{TicketStatus[ticket!.status]}</Badge>
+  if (ticket)
+    return (
+      <div className={classes.pageLayout}>
+        <Paper shadow="sm" p="sm">
+          <Text>{`Openned by user at ${ticket.createdAt.toLocaleDateString()} ${ticket?.createdAt.toLocaleTimeString()}`}</Text>
+          <div className={classes.ticketHeader}>
+            <Title order={1}>{ticket?.title}</Title>
+            <div>
+              <Badge>{TicketStatus[ticket!.status]}</Badge>
+            </div>
           </div>
-        </div>
-        <Text>{ticket?.description}</Text>
-      </Paper>
-      <Paper shadow="sm" p="sm">
-        <Button
-          leftIcon={<IconPlus />}
-          variant="outline"
-          className={classes.newTaskButton}
-        >
-          New Task
-        </Button>
-      </Paper>
-    </div>
-  );
+          <Text>{ticket?.description}</Text>
+        </Paper>
+        <Paper shadow="sm" p="sm">
+          <TaskAdd ticket={ticket!} />
+        </Paper>
+        <Paper>
+          <TaskList tasks={ticket!.tasks} />
+        </Paper>
+      </div>
+    );
 }
 
 const useStyles = createStyles({

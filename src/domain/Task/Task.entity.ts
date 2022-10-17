@@ -16,7 +16,7 @@ export class Task {
   ticketId!: string;
 
   @Fields.date()
-  createdAt = Date.now();
+  createdAt = new Date();
 
   @Fields.date()
   startedAt?: Date;
@@ -41,4 +41,10 @@ export enum TaskStatus {
   STARTED,
   PAUSED,
   DONE,
+}
+
+export interface TaskInput {
+  title: string;
+  description: string;
+  ticketId: string;
 }

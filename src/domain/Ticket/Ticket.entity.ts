@@ -34,6 +34,7 @@ export class Ticket {
 
   @Fields.object<Task>((options, remult) => {
     options.serverExpression = async (ticket) => {
+      console.log("querying tasks");
       remult.repo(Task).find({ where: { ticketId: ticket.id } });
     };
   })
