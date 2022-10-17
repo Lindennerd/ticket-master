@@ -1,39 +1,19 @@
+// src/pages/_app.tsx
 import "../styles/globals.css";
-import type { AppProps } from "next/app";
-import { MainLayout } from "@/layout/MainLayout";
-import {
-  ColorScheme,
-  ColorSchemeProvider,
-  MantineProvider,
-} from "@mantine/core";
-import { useLocalStorage } from "@mantine/hooks";
+import { SessionProvider } from "next-auth/react";
+import type { Session } from "next-auth";
+import type { AppType } from "next/app";
+import { trpc } from "../utils/trpc";
 
-function MyApp({ Component, pageProps }: AppProps) {
-  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-    key: "mantine-color-scheme",
-    defaultValue: "light",
-    getInitialValueInEffect: true,
-  });
-
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
-
+const MyApp: AppType<{ session: Session | null }> = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}) => {
   return (
-    <ColorSchemeProvider
-      colorScheme={colorScheme}
-      toggleColorScheme={toggleColorScheme}
-    >
-      <MantineProvider
-        theme={{ colorScheme: colorScheme }}
-        withGlobalStyles
-        withNormalizeCSS
-      >
-        <MainLayout>
-          <Component {...pageProps} />
-        </MainLayout>
-      </MantineProvider>
-    </ColorSchemeProvider>
+    <SessionProvider session={session}>
+      <Component {...pageProps} />
+    </SessionProvider>
   );
-}
+};
 
-export default MyApp;
+export default trpc.withTRPC(MyApp);
