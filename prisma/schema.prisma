@@ -2,204 +2,215 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
 }
 
 generator zod {
-  provider = "prisma-zod-generator"
+    provider = "prisma-zod-generator"
 }
 
 // Necessary for Next auth
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? // @db.Text
-  access_token      String? // @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? // @db.Text
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? // @db.Text
+    access_token      String? // @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? // @db.Text
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
+    @@unique([provider, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id                    String                  @id @default(cuid())
-  name                  String?
-  email                 String?                 @unique
-  emailVerified         DateTime?
-  image                 String?
-  accounts              Account[]
-  sessions              Session[]
-  TeamMember            TeamMember[]
-  Ticket                Ticket[]
-  Comment               Comment[]
-  TicketStatusUpdateLog TicketStatusUpdateLog[]
-  TaskStatusUpdateLog   TaskStatusUpdateLog[]
-  Task                  Task[]
-  TaskUsers             TaskUsers?              @relation(fields: [taskUsersId], references: [id])
-  taskUsersId           String?
+    id                    String                  @id @default(cuid())
+    name                  String?
+    email                 String?                 @unique
+    emailVerified         DateTime?
+    image                 String?
+    accounts              Account[]
+    sessions              Session[]
+    TeamMember            TeamMember[]
+    Ticket                Ticket[]
+    Comment               Comment[]
+    TicketStatusUpdateLog TicketStatusUpdateLog[]
+    TaskStatusUpdateLog   TaskStatusUpdateLog[]
+    Task                  Task[]
+    TaskUsers             TaskUsers?              @relation(fields: [taskUsersId], references: [id])
+    taskUsersId           String?
+    OrganizationUsers     OrganizationUsers[]
 }
 
 model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+    identifier String
+    token      String   @unique
+    expires    DateTime
 
-  @@unique([identifier, token])
+    @@unique([identifier, token])
 }
 
 model Organization {
-  id     String   @id @default(cuid())
-  name   String
-  Team   Team[]
-  slug   String
-  Ticket Ticket[]
+    id                String              @id @default(cuid())
+    name              String
+    Team              Team[]
+    slug              String
+    Ticket            Ticket[]
+    OrganizationUsers OrganizationUsers[]
+}
+
+model OrganizationUsers {
+    id             String       @id @default(cuid())
+    organization   Organization @relation(fields: [organizationId], references: [id])
+    organizationId String
+    user           User         @relation(fields: [userId], references: [id])
+    userId         String
+    role           String
 }
 
 model Team {
-  id             String       @id @default(cuid())
-  name           String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
-  slug           String
-  TeamMember     TeamMember[]
-  Ticket         Ticket[]
-  TeamTicket     TeamTicket[]
+    id             String       @id @default(cuid())
+    name           String
+    organization   Organization @relation(fields: [organizationId], references: [id])
+    organizationId String
+    slug           String
+    TeamMember     TeamMember[]
+    Ticket         Ticket[]
+    TeamTicket     TeamTicket[]
 }
 
 model TeamMember {
-  id     String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id])
-  team   Team   @relation(fields: [teamId], references: [id])
-  role   String
-  userId String
-  teamId String
+    id     String @id @default(cuid())
+    user   User   @relation(fields: [userId], references: [id])
+    team   Team   @relation(fields: [teamId], references: [id])
+    role   String
+    userId String
+    teamId String
 }
 
 model Ticket {
-  id                    String                  @id @default(cuid())
-  title                 String
-  description           String
-  attachment            Attachment[]
-  createdAt             DateTime                @default(now())
-  status                TicketStatus            @relation(fields: [ticketStatusId], references: [id])
-  doneAt                DateTime?
-  creator               User                    @relation(fields: [userId], references: [id])
-  organization          Organization            @relation(fields: [organizationId], references: [id])
-  assignedTeam          Team?                   @relation(fields: [teamId], references: [id])
-  tasks                 Task[]
-  comments              Comment[]
-  ticketStatusId        String
-  userId                String
-  organizationId        String
-  teamId                String?
-  emailReference        String?
-  TicketStatusUpdateLog TicketStatusUpdateLog[]
-  TeamTicket            TeamTicket[]
+    id                    String                  @id @default(cuid())
+    title                 String
+    description           String
+    attachment            Attachment[]
+    createdAt             DateTime                @default(now())
+    status                TicketStatus            @relation(fields: [ticketStatusId], references: [id])
+    doneAt                DateTime?
+    creator               User                    @relation(fields: [userId], references: [id])
+    organization          Organization            @relation(fields: [organizationId], references: [id])
+    assignedTeam          Team?                   @relation(fields: [teamId], references: [id])
+    tasks                 Task[]
+    comments              Comment[]
+    ticketStatusId        String
+    userId                String
+    organizationId        String
+    teamId                String?
+    emailReference        String?
+    TicketStatusUpdateLog TicketStatusUpdateLog[]
+    TeamTicket            TeamTicket[]
 }
 
 model TeamTicket {
-  id       String @id @default(cuid())
-  team     Team   @relation(fields: [teamId], references: [id])
-  ticket   Ticket @relation(fields: [ticketId], references: [id])
-  teamId   String
-  ticketId String
+    id       String @id @default(cuid())
+    team     Team   @relation(fields: [teamId], references: [id])
+    ticket   Ticket @relation(fields: [ticketId], references: [id])
+    teamId   String
+    ticketId String
 }
 
 model TicketStatusUpdateLog {
-  id             String       @id @default(cuid())
-  ticket         Ticket       @relation(fields: [ticketId], references: [id])
-  user           User         @relation(fields: [userId], references: [id])
-  status         TicketStatus @relation(fields: [ticketStatusId], references: [id])
-  updatedAt      DateTime     @default(now())
-  ticketId       String
-  userId         String
-  ticketStatusId String
+    id             String       @id @default(cuid())
+    ticket         Ticket       @relation(fields: [ticketId], references: [id])
+    user           User         @relation(fields: [userId], references: [id])
+    status         TicketStatus @relation(fields: [ticketStatusId], references: [id])
+    updatedAt      DateTime     @default(now())
+    ticketId       String
+    userId         String
+    ticketStatusId String
 }
 
 model Attachment {
-  id       String  @id @default(cuid())
-  name     String
-  file     String
-  Ticket   Ticket? @relation(fields: [ticketId], references: [id])
-  ticketId String?
+    id       String  @id @default(cuid())
+    name     String
+    file     String
+    Ticket   Ticket? @relation(fields: [ticketId], references: [id])
+    ticketId String?
 }
 
 model Task {
-  id                  String                @id @default(cuid())
-  title               String
-  createdAt           DateTime              @default(now())
-  estimateHours       Int                   @default(1)
-  estimateMinutes     Int                   @default(0)
-  status              TaskStatus            @relation(fields: [taskStatusId], references: [id])
-  Ticket              Ticket?               @relation(fields: [ticketId], references: [id])
-  ticketId            String?
-  taskStatusId        String
-  TaskStatusUpdateLog TaskStatusUpdateLog[]
-  User                User?                 @relation(fields: [userId], references: [id])
-  userId              String?
-  TaskUsers           TaskUsers[]
+    id                  String                @id @default(cuid())
+    title               String
+    createdAt           DateTime              @default(now())
+    estimateHours       Int                   @default(1)
+    estimateMinutes     Int                   @default(0)
+    status              TaskStatus            @relation(fields: [taskStatusId], references: [id])
+    Ticket              Ticket?               @relation(fields: [ticketId], references: [id])
+    ticketId            String?
+    taskStatusId        String
+    TaskStatusUpdateLog TaskStatusUpdateLog[]
+    User                User?                 @relation(fields: [userId], references: [id])
+    userId              String?
+    TaskUsers           TaskUsers[]
 }
 
 model TaskUsers {
-  id     String @id @default(cuid())
-  task   Task   @relation(fields: [taskId], references: [id])
-  users  User[]
-  taskId String
+    id     String @id @default(cuid())
+    task   Task   @relation(fields: [taskId], references: [id])
+    users  User[]
+    taskId String
 }
 
 model TaskStatusUpdateLog {
-  id             String       @id @default(cuid())
-  task           Task         @relation(fields: [taskId], references: [id])
-  user           User         @relation(fields: [userId], references: [id])
-  status         TicketStatus @relation(fields: [ticketStatusId], references: [id])
-  updatedAt      DateTime     @default(now())
-  taskId         String
-  userId         String
-  ticketStatusId String
+    id             String       @id @default(cuid())
+    task           Task         @relation(fields: [taskId], references: [id])
+    user           User         @relation(fields: [userId], references: [id])
+    status         TicketStatus @relation(fields: [ticketStatusId], references: [id])
+    updatedAt      DateTime     @default(now())
+    taskId         String
+    userId         String
+    ticketStatusId String
 }
 
 model TaskStatus {
-  id           String @id @default(cuid())
-  name         String
-  organization String
-  Task         Task[]
+    id           String @id @default(cuid())
+    name         String
+    organization String
+    Task         Task[]
 }
 
 model TicketStatus {
-  id                    String                  @id @default(cuid())
-  name                  String
-  organization          String
-  Ticket                Ticket[]
-  TicketStatusUpdateLog TicketStatusUpdateLog[]
-  TaskStatusUpdateLog   TaskStatusUpdateLog[]
+    id                    String                  @id @default(cuid())
+    name                  String
+    organization          String
+    Ticket                Ticket[]
+    TicketStatusUpdateLog TicketStatusUpdateLog[]
+    TaskStatusUpdateLog   TaskStatusUpdateLog[]
 }
 
 model Comment {
-  id        String   @id @default(cuid())
-  content   String
-  creator   User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  Ticket    Ticket?  @relation(fields: [ticketId], references: [id])
-  ticketId  String?
-  userId    String
+    id        String   @id @default(cuid())
+    content   String
+    creator   User     @relation(fields: [userId], references: [id])
+    createdAt DateTime @default(now())
+    Ticket    Ticket?  @relation(fields: [ticketId], references: [id])
+    ticketId  String?
+    userId    String
 }

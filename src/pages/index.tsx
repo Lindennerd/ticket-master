@@ -1,17 +1,24 @@
 import { useSession } from "next-auth/react";
-import { NextPageWithLayout } from "./_app";
-import { LandingPageLayout } from "../layout/LandingPageLayout";
+import { useRouter } from "next/router";
+import { trpc } from "../utils/trpc";
+import LandingPage from "../components/Pages/LandingPage";
 
-const Home: NextPageWithLayout = () => {
+const Home = () => {
   const { status } = useSession();
+  const {
+    data: organization,
+    isLoading,
+    error,
+  } = trpc.organization.getUsersOrganization.useQuery(undefined, {
+    enabled: status === "authenticated",
+  });
+
+  const { push } = useRouter();
 
   if (status === "authenticated")
-    return <div>redirect to organization page</div>;
-  else return <div>Landing Page</div>;
-};
-
-Home.getLayout = function getLayout(page) {
-  return <LandingPageLayout>{page}</LandingPageLayout>;
+    if (organization) push(`organization/${organization.organizationId}`);
+    else push("organization/new");
+  else return <LandingPage />;
 };
 
 export default Home;
